@@ -8,12 +8,14 @@ public class WanderState : IState
     private NavMeshAgent navMeshAgent;
     private Transform currentTransform;
     private bool canWander;
+    TankData tankData;
 
     public WanderState(NavMeshAgent agent, Transform transform, bool canWander)
     {
         navMeshAgent = agent;
         currentTransform = transform;
         this.canWander = canWander;
+        tankData = new TankData();
     }
 
     public void doAction()
@@ -26,7 +28,7 @@ public class WanderState : IState
             var _direction = (targetPoint - currentTransform.position).normalized;
             var _lookRotation = Quaternion.LookRotation(_direction);
 
-            currentTransform.rotation = Quaternion.Slerp(currentTransform.rotation, _lookRotation, 1f * Time.deltaTime);
+            currentTransform.rotation = Quaternion.Slerp(currentTransform.rotation, _lookRotation, tankData.maxRotationSpeed * Time.deltaTime);
 
             if (canWander)
             {
