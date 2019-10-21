@@ -1,14 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class StateController : MonoBehaviour
 {
     TankData tankData;
+    private NavMeshAgent agent;
 
     public states curState;
     private IState state;
-    private int health;
+    private float health;
+
+    public float wanderTimer = 3f;
+    private float timer;
 
     public enum states
     {
@@ -23,7 +28,10 @@ public class StateController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        tankData = new TankData();
+        agent = GetComponent<NavMeshAgent>();
+        agent.speed = tankData.maxSpeed;
+        agent.angularSpeed = tankData.maxRotationSpeed;
     }
 
     // Update is called once per frame
@@ -38,11 +46,11 @@ public class StateController : MonoBehaviour
         switch (curState)
         {
             case states.Wandering when !enemySpotted():
-                state = new WanderState();
+                state = new WanderState(agent, transform, canWander()) ;
                 curState = states.Wandering;
                 break;
             case states.Chasing when enemySpotted() && !isFleeing():
-                state = new ChaseState();
+                state = new ChaseState(getSpottedEnemy(), agent, transform);
                 curState = states.Chasing;
                 break;
             case states.Attacking when inAttackRange() && canFire() && !isFleeing() && inLineOfsight():
@@ -54,7 +62,7 @@ public class StateController : MonoBehaviour
                 curState = states.Evading;
                 break;
             default:
-                state = new WanderState();
+                state = new WanderState(agent, transform, canWander());
                 curState = states.Wandering;
                 break;
         }
@@ -66,6 +74,18 @@ public class StateController : MonoBehaviour
         {
             hasBeenHit();
         }
+    }
+
+    bool canWander ()
+    {
+        timer = timer + Time.deltaTime;
+        Debug.Log(timer + " " + (timer >= wanderTimer) + " " + wanderTimer);
+        if (timer >= wanderTimer)
+        {
+            timer = 0;
+            return true;
+        }
+        return false;
     }
 
 
@@ -125,5 +145,9 @@ public class StateController : MonoBehaviour
     bool inLineOfsight()
     {
         return false;
+    }
+
+     GameObject getSpottedEnemy() {
+        return null;
     }
 }

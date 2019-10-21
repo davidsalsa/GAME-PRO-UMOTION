@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 [CreateAssetMenu(fileName = "TankData", menuName = "ScriptableObjects/TankDataUmotion")]
-public class TankData : MonoBehaviour
+public class TankData : ScriptableObject
 {
     public float maxSpeed = 300f;
     public float maxDamagedSpeed = 150f;
