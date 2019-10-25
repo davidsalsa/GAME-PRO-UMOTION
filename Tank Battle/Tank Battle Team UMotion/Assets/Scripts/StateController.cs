@@ -14,6 +14,8 @@ public class StateController : MonoBehaviour
 
     public float wanderTimer = 3f;
     private float timer;
+    private List<GameObject> spottedEnemies=new List<GameObject>();
+    private List<GameObject> allies = new List<GameObject>();
 
     public enum states
     {
@@ -32,6 +34,12 @@ public class StateController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.speed = tankData.maxSpeed;
         agent.angularSpeed = tankData.maxRotationSpeed;
+        foreach(GameObject tank in GameObject.FindGameObjectsWithTag("Blue"))
+        {
+            allies.Add(tank);
+            allies.Remove(this.gameObject);
+        }
+
     }
 
     // Update is called once per frame
@@ -45,9 +53,14 @@ public class StateController : MonoBehaviour
     {
         switch (curState)
         {
+            
             case states.Wandering when !enemySpotted():
                 state = new WanderState(agent, transform, canWander()) ;
                 curState = states.Wandering;
+                break;
+            case states.Wandering when enemySpotted() && !isFleeing():
+                state = new ChaseState(getSpottedEnemy(), agent, transform);
+                curState = states.Chasing;
                 break;
             case states.Chasing when enemySpotted() && !isFleeing():
                 state = new ChaseState(getSpottedEnemy(), agent, transform);
@@ -57,8 +70,8 @@ public class StateController : MonoBehaviour
                 state = new AttackState();
                 curState = states.Attacking;
                 break;
-            case states.Evading when onBulletPath():
-                state = new EvadeState();
+            case states.Wandering when onBulletPath():
+                state = new EvadeState(agent,transform,needEvade());
                 curState = states.Evading;
                 break;
             default:
@@ -87,11 +100,14 @@ public class StateController : MonoBehaviour
         }
         return false;
     }
-
-
     bool enemySpotted()
     {
-        return false;
+        
+        if (spottedEnemies.Count >= 1)
+        {
+            return true;
+        }
+        else return false;
     }
 
     bool inAttackRange()
@@ -147,7 +163,31 @@ public class StateController : MonoBehaviour
         return false;
     }
 
-     GameObject getSpottedEnemy() {
-        return null;
+     List<GameObject> getSpottedEnemy() {
+        return spottedEnemies;
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if(other.gameObject.tag != this.gameObject.tag && other.gameObject.tag != "Untagged")
+        {
+            if (!spottedEnemies.Contains(other.gameObject))
+            {
+                Debug.Log(other.gameObject.tag);
+                spottedEnemies.Add(other.gameObject);
+            }
+        }
+    }
+
+    private bool needEvade()
+    {
+        bool needEvade = false;
+        foreach (GameObject allie in allies) {
+            if (Vector3.Distance(transform.position, allie.transform.position) < 150)
+            {
+                needEvade = true;
+            }
+      }
+        return needEvade;
     }
 }

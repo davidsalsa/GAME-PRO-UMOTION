@@ -93,6 +93,7 @@ GameObject:
   - component: {fileID: 6500000}
   - component: {fileID: 5400000}
   - component: {fileID: 7658602640031293257}
+  - component: {fileID: 3450142351968425605}
   m_Layer: 0
   m_Name: Tank
   m_TagString: Untagged
@@ -204,6 +205,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   curState: 0
+  wanderTimer: 3
+--- !u!135 &3450142351968425605
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100002}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 500
+  m_Center: {x: -0.350885, y: 7.4609146, z: -0.016793255}
 --- !u!1 &100004
 GameObject:
   m_ObjectHideFlags: 0
