@@ -10,11 +10,10 @@ public class EvadeState : IState
     private bool needEvade;
     TankData tankData;
 
-    public EvadeState(NavMeshAgent agent, Transform transform, bool needEvade)
+    public EvadeState(NavMeshAgent agent, Transform transform)
     {
         navMeshAgent = agent;
         currentTransform = transform;
-        this.needEvade = needEvade;
         tankData = new TankData();
     }
     public void doAction()
@@ -29,13 +28,12 @@ public class EvadeState : IState
 
             currentTransform.rotation = Quaternion.Slerp(currentTransform.rotation, _lookRotation, tankData.maxRotationSpeed * Time.deltaTime);
 
-            if (needEvade)
-            {
-                Vector3 destination = currentTransform.position + (currentTransform.forward * 10) + (currentTransform.right * 200);
+            
+                Vector3 destination = currentTransform.position + (currentTransform.forward * 10) + (currentTransform.right * 20);
 
                 navMeshAgent.SetDestination(destination);
                 Debug.Log(destination);
-            }
+            
         }
         else
         {

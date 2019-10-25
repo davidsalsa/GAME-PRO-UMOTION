@@ -51,6 +51,7 @@ public class StateController : MonoBehaviour
 
     void switchStates()
     {
+       
         switch (curState)
         {
             
@@ -70,8 +71,12 @@ public class StateController : MonoBehaviour
                 state = new AttackState();
                 curState = states.Attacking;
                 break;
-            case states.Wandering when onBulletPath():
-                state = new EvadeState(agent,transform,needEvade());
+            case states.Wandering when needEvade():
+                state = new EvadeState(agent,transform);
+                curState = states.Evading;
+                break;
+            case states.Evading when needEvade():
+                state = new EvadeState(agent, transform);
                 curState = states.Evading;
                 break;
             default:
@@ -181,13 +186,19 @@ public class StateController : MonoBehaviour
 
     private bool needEvade()
     {
-        bool needEvade = false;
+        bool react = false;
         foreach (GameObject allie in allies) {
             if (Vector3.Distance(transform.position, allie.transform.position) < 150)
             {
-                needEvade = true;
+                react= true;
+                
+                
             }
-      }
-        return needEvade;
+            else react= false;
+            return react;
+
+        }return false;
+
+        
     }
 }
