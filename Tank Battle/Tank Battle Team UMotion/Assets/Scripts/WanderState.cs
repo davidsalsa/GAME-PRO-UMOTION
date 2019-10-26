@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -32,7 +32,7 @@ public class WanderState : IState
 
             if (canWander)
             {
-                Vector3 destination = RandomNavSphere(currentTransform.position, 1000f, -1);
+                Vector3 destination = RandomNavSphere(currentTransform.position, 500f, -1);
 
                 navMeshAgent.SetDestination(destination);
                 Debug.Log(destination);
@@ -41,11 +41,6 @@ public class WanderState : IState
         else {
             navMeshAgent.velocity = Vector3.zero;
         }
-
-        
-
-        
-     
     }
 
     public void Transition()
