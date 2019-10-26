@@ -29,7 +29,7 @@ public class EvadeState : IState
             currentTransform.rotation = Quaternion.Slerp(currentTransform.rotation, _lookRotation, tankData.maxRotationSpeed * Time.deltaTime);
 
 
-            Vector3 destination = new Vector3(0, 0, 0);
+            Vector3 destination = new Vector3(currentTransform.position.x + 10, 0, currentTransform.position.z + 20);
             
                 navMeshAgent.SetDestination(destination);
                 Debug.Log("Evade  "+destination);

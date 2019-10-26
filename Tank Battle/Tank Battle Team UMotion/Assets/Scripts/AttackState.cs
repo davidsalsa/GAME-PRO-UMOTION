@@ -44,8 +44,10 @@ public class AttackState : IState
 
     private void shoot()
     {
+        
         if (lockedOn())
         {
+            Debug.Log("Shoot");
             // bullet needs to be instantiated
             bullet.transform.position = bulletSpawnPoint.transform.position;
             bullet.transform.rotation = bulletSpawnPoint.transform.rotation;
