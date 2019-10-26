@@ -20,6 +20,7 @@ public class StateController : MonoBehaviour
     public Transform bulletSpawnPoint;
     private List<GameObject> spottedEnemies = new List<GameObject>();
     private List<GameObject> allies = new List<GameObject>();
+    private bool hasBeenHit = false;
     GameObject[] team;
     public enum states
     {
@@ -52,7 +53,7 @@ public class StateController : MonoBehaviour
             allies.Add(tank);
         }
         allies.Remove(this.gameObject);
-       // print(allies.Count);
+
     }
 
     // Update is called once per frame
@@ -62,8 +63,7 @@ public class StateController : MonoBehaviour
             state.doAction();
 
         print(state);
-        // print(inAttackRange() + " " + canFire() + " " + isFleeing());
-        print(spottedEnemies.Count);
+
     }
 
     void switchStates()
@@ -104,6 +104,16 @@ public class StateController : MonoBehaviour
                 state = new WanderState(agent, transform, canWander());
                 curState = states.Wandering;
                 break;
+            case states.Chasing when healthCritical() && hasBeenHit:
+                hasBeenHit = false;
+                state = new FleeState(agent, GetClosestEnemy(getSpottedEnemy()), transform);
+                curState = states.Fleeing;
+                break;
+            case states.Fleeing when !enemySpotted():
+                hasBeenHit = false;
+                state = new WanderState(agent, transform, canWander());
+                curState = states.Wandering;
+                break;
             default:
                 state = new WanderState(agent, transform, canWander());
                 curState = states.Wandering;
@@ -113,9 +123,13 @@ public class StateController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.transform.tag == "Bullet")
+        if(collision.gameObject != this.gameObject)
         {
-            updateHealth();
+            if (collision.transform.tag == "Bullet")
+            {
+                hasBeenHit = true;
+                updateHealth();
+            }
         }
     }
 
@@ -165,17 +179,12 @@ public class StateController : MonoBehaviour
 
     void updateHealth()
     {
-        //health -= tankData.bulletDamage;
+        health -= tankData.bulletDamage;
        
         if(health <= 0)
         {
             curState = states.Dead;
             Destroy(this.gameObject);
-        }
-        if (healthCritical())
-        {
-            state = new FleeState();
-            curState = states.Fleeing;
         }
     }
 

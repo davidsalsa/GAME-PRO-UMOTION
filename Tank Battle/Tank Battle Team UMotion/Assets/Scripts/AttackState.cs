@@ -46,7 +46,7 @@ public class AttackState : IState
     {
         if (lockedOn())
         {
-            // bullet needs to be instantiated
+            
             bullet.transform.position = bulletSpawnPoint.transform.position;
             bullet.transform.rotation = bulletSpawnPoint.transform.rotation;
             bullet.SetActive(true);
@@ -59,6 +59,7 @@ public class AttackState : IState
     {
         if (Vector3.Distance(turret.transform.position, bullet.transform.position) > tankData.maxAttackRange)
         {
+            bullet.GetComponent<Rigidbody>().velocity = new Vector3(0f,0f,0f);
             bullet.SetActive(false);
         }
     }

@@ -21,7 +21,6 @@ public class ChaseState : IState
 
     public void doAction()
     {
-        Debug.Log(target.transform.position);
         navMeshAgent.updateRotation = false;
         if (!navMeshAgent.isStopped)
         {

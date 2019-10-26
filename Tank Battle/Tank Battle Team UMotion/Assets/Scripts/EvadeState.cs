@@ -14,7 +14,7 @@ public class EvadeState : IState
     {
         navMeshAgent = agent;
         currentTransform = transform;
-        tankData = new TankData();
+        tankData = ScriptableObject.CreateInstance<TankData>();
     }
     public void doAction()
     {
