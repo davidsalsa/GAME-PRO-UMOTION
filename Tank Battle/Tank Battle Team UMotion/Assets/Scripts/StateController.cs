@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,7 +11,8 @@ public class StateController : MonoBehaviour
     public states curState;
     private IState state;
     private float health;
-
+    private bool evade = false;
+    
     public float wanderTime = 3f;
     public GameObject turret;
     private float wanderTimer;
@@ -61,16 +62,14 @@ public class StateController : MonoBehaviour
     {
             switchStates();
             state.doAction();
-
-        print(state);
-
     }
+
 
     void switchStates()
     {
         switch (curState)
         {
-            case states.Wandering when !enemySpotted():
+            case states.Wandering when !enemySpotted() && !evade:
                 state = new WanderState(agent, transform, canWander()) ;
                 curState = states.Wandering;
                 break;
@@ -92,15 +91,15 @@ public class StateController : MonoBehaviour
                 state = new ChaseState(GetClosestEnemy(getSpottedEnemy()), agent, transform);
                 curState = states.Chasing;
                 break;
-            case states.Wandering when needEvade():
+             case states.Wandering when evade:
                 state = new EvadeState(agent, transform);
                 curState = states.Evading;
                 break;
-            case states.Evading when needEvade():
+            case states.Evading when evade:
                 state = new EvadeState(agent, transform);
                 curState = states.Evading;
                 break;
-            case states.Evading when !needEvade():
+            case states.Evading when !evade:
                 state = new WanderState(agent, transform, canWander());
                 curState = states.Wandering;
                 break;
@@ -206,16 +205,6 @@ public class StateController : MonoBehaviour
 
         return false;
     }
-    
-    bool onBulletPath()
-    {
-        return false;
-    }
-
-    bool inLineOfsight()
-    {
-        return false;
-    }
 
     private void OnTriggerStay(Collider other)
     {
@@ -226,6 +215,14 @@ public class StateController : MonoBehaviour
                 print("add new enemy");
                 spottedEnemies.Add(other.gameObject);
             }
+        } 
+        if (other.gameObject.tag == this.gameObject.tag && other.gameObject != this.gameObject)  
+        {
+            if (Vector3.Distance(this.gameObject.transform.position, other.gameObject.transform.position) < 200)
+            {
+                evade = true;
+            }
+            else evade = false;
         }
     }
 
@@ -238,19 +235,6 @@ public class StateController : MonoBehaviour
                 spottedEnemies.Remove(other.gameObject);
             }
         }
-    }
-
-    private bool needEvade()
-    {
-        bool react = false;
-        foreach (GameObject ally in allies)
-        {
-            if (Vector3.Distance(transform.position, ally.transform.position) < 2000)
-            {
-                react = true;
-            }
-        }
-        return react;
     }
 
     GameObject GetClosestEnemy(List<GameObject> enemies)
