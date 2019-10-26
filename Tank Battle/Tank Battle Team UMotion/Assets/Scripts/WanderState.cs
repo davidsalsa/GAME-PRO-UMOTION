@@ -45,7 +45,7 @@ public class WanderState : IState
         
 
         
-        Debug.Log(canWander);
+     
     }
 
     public void Transition()

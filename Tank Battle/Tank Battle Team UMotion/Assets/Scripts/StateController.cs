@@ -11,6 +11,7 @@ public class StateController : MonoBehaviour
     public states curState;
     private IState state;
     private float health;
+    private bool evade = false;
 
     public float wanderTime = 3f;
     public GameObject turret;
@@ -52,7 +53,7 @@ public class StateController : MonoBehaviour
             allies.Add(tank);
         }
         allies.Remove(this.gameObject);
-       // print(allies.Count);
+       
     }
 
     // Update is called once per frame
@@ -62,15 +63,16 @@ public class StateController : MonoBehaviour
             state.doAction();
 
         print(state);
-        // print(inAttackRange() + " " + canFire() + " " + isFleeing());
-        print(spottedEnemies.Count);
+        print(evade);
+
+        
     }
 
     void switchStates()
     {
         switch (curState)
         {
-            case states.Wandering when !enemySpotted():
+            case states.Wandering when !enemySpotted() && !evade:
                 state = new WanderState(agent, transform, canWander()) ;
                 curState = states.Wandering;
                 break;
@@ -92,15 +94,15 @@ public class StateController : MonoBehaviour
                 state = new ChaseState(GetClosestEnemy(getSpottedEnemy()), agent, transform);
                 curState = states.Chasing;
                 break;
-            case states.Wandering when needEvade():
+            case states.Wandering when evade == true:
                 state = new EvadeState(agent, transform);
                 curState = states.Evading;
                 break;
-            case states.Evading when needEvade():
+            case states.Evading when evade == true:
                 state = new EvadeState(agent, transform);
                 curState = states.Evading;
                 break;
-            case states.Evading when !needEvade():
+            case states.Evading when evade == false:
                 state = new WanderState(agent, transform, canWander());
                 curState = states.Wandering;
                 break;
@@ -210,6 +212,7 @@ public class StateController : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+
         if (other.gameObject.tag != this.gameObject.tag && other.gameObject.tag != "Untagged" && other.gameObject.tag != "Bullet")
         {
             if (!spottedEnemies.Contains(other.gameObject))
@@ -217,6 +220,17 @@ public class StateController : MonoBehaviour
                 print("add new enemy");
                 spottedEnemies.Add(other.gameObject);
             }
+        }
+        
+        if (other.gameObject.tag == this.gameObject.tag && other.gameObject != this.gameObject)
+            
+        {
+            
+            if (Vector3.Distance(this.gameObject.transform.position, other.gameObject.transform.position) < 200)
+            {
+                evade = true;
+            }
+            else evade = false;
         }
     }
 
@@ -231,18 +245,6 @@ public class StateController : MonoBehaviour
         }
     }
 
-    private bool needEvade()
-    {
-        bool react = false;
-        foreach (GameObject ally in allies)
-        {
-            if (Vector3.Distance(transform.position, ally.transform.position) < 2000)
-            {
-                react = true;
-            }
-        }
-        return react;
-    }
 
     GameObject GetClosestEnemy(List<GameObject> enemies)
     {
