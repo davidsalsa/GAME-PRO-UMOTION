@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -12,7 +12,7 @@ public class StateController : MonoBehaviour
     private IState state;
     private float health;
     private bool evade = false;
-    
+    public bool flocking = true;
     public float wanderTime = 3f;
     public GameObject turret;
     private float wanderTimer;
@@ -21,7 +21,6 @@ public class StateController : MonoBehaviour
     public Transform bulletSpawnPoint;
     private List<GameObject> spottedEnemies = new List<GameObject>();
     private List<GameObject> allies = new List<GameObject>();
-    private bool hasBeenHit = false;
     GameObject[] team;
     public enum states
     {
@@ -54,7 +53,7 @@ public class StateController : MonoBehaviour
             allies.Add(tank);
         }
         allies.Remove(this.gameObject);
-
+       
     }
 
     // Update is called once per frame
@@ -62,15 +61,19 @@ public class StateController : MonoBehaviour
     {
             switchStates();
             state.doAction();
-    }
 
+        print(state);
+        print(evade);
+
+        
+    }
 
     void switchStates()
     {
         switch (curState)
         {
             case states.Wandering when !enemySpotted() && !evade:
-                state = new WanderState(agent, transform, canWander()) ;
+                state = new WanderState(agent, transform, canWander(),flocking) ;
                 curState = states.Wandering;
                 break;
             case states.Wandering when enemySpotted() && !isFleeing():
@@ -91,30 +94,20 @@ public class StateController : MonoBehaviour
                 state = new ChaseState(GetClosestEnemy(getSpottedEnemy()), agent, transform);
                 curState = states.Chasing;
                 break;
-             case states.Wandering when evade:
+            case states.Wandering when evade && !flocking:
                 state = new EvadeState(agent, transform);
                 curState = states.Evading;
                 break;
-            case states.Evading when evade:
+            case states.Evading when evade && !flocking:
                 state = new EvadeState(agent, transform);
                 curState = states.Evading;
                 break;
-            case states.Evading when !evade:
-                state = new WanderState(agent, transform, canWander());
-                curState = states.Wandering;
-                break;
-            case states.Chasing when healthCritical() && hasBeenHit:
-                hasBeenHit = false;
-                state = new FleeState(agent, GetClosestEnemy(getSpottedEnemy()), transform);
-                curState = states.Fleeing;
-                break;
-            case states.Fleeing when !enemySpotted():
-                hasBeenHit = false;
-                state = new WanderState(agent, transform, canWander());
+            case states.Evading when !evade && !flocking: 
+                state = new WanderState(agent, transform, canWander(),flocking);
                 curState = states.Wandering;
                 break;
             default:
-                state = new WanderState(agent, transform, canWander());
+                state = new WanderState(agent, transform, canWander(),flocking);
                 curState = states.Wandering;
                 break;
         }
@@ -122,13 +115,9 @@ public class StateController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject != this.gameObject)
+        if(collision.transform.tag == "Bullet")
         {
-            if (collision.transform.tag == "Bullet")
-            {
-                hasBeenHit = true;
-                updateHealth();
-            }
+            updateHealth();
         }
     }
 
@@ -178,12 +167,17 @@ public class StateController : MonoBehaviour
 
     void updateHealth()
     {
-        health -= tankData.bulletDamage;
+        //health -= tankData.bulletDamage;
        
         if(health <= 0)
         {
             curState = states.Dead;
             Destroy(this.gameObject);
+        }
+        if (healthCritical())
+        {
+            state = new FleeState(agent,GetClosestEnemy(spottedEnemies),transform);
+            curState = states.Fleeing;
         }
     }
 
@@ -205,9 +199,20 @@ public class StateController : MonoBehaviour
 
         return false;
     }
+    
+    bool onBulletPath()
+    {
+        return false;
+    }
+
+    bool inLineOfsight()
+    {
+        return false;
+    }
 
     private void OnTriggerStay(Collider other)
     {
+
         if (other.gameObject.tag != this.gameObject.tag && other.gameObject.tag != "Untagged" && other.gameObject.tag != "Bullet")
         {
             if (!spottedEnemies.Contains(other.gameObject))
@@ -215,9 +220,12 @@ public class StateController : MonoBehaviour
                 print("add new enemy");
                 spottedEnemies.Add(other.gameObject);
             }
-        } 
-        if (other.gameObject.tag == this.gameObject.tag && other.gameObject != this.gameObject)  
+        }
+        
+        if (other.gameObject.tag == this.gameObject.tag && other.gameObject != this.gameObject)
+            
         {
+            
             if (Vector3.Distance(this.gameObject.transform.position, other.gameObject.transform.position) < 200)
             {
                 evade = true;
@@ -237,6 +245,7 @@ public class StateController : MonoBehaviour
         }
     }
 
+
     GameObject GetClosestEnemy(List<GameObject> enemies)
     {
         GameObject bestTarget = null;
@@ -254,6 +263,22 @@ public class StateController : MonoBehaviour
         }
 
         return bestTarget;
+    }
+
+    // Obtains all the allies that are currently close to the tank
+    public List<GameObject> getClosebyAllies(NavMeshAgent agent, float radius)
+    {
+        List<GameObject> agentList = new List<GameObject>();
+
+        foreach (var otherAgent in allies)
+        {
+            if (otherAgent != agent && Vector3.Distance(agent.transform.position, otherAgent.transform.position) < radius)
+            {
+                agentList.Add(otherAgent);
+            }
+        }
+
+        return agentList;
     }
 
     List<GameObject> getSpottedEnemy()
