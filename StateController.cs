@@ -12,7 +12,7 @@ public class StateController : MonoBehaviour
     private IState state;
     private float health;
     private bool evade = false;
-
+    public bool flocking = true;
     public float wanderTime = 3f;
     public GameObject turret;
     private float wanderTimer;
@@ -73,7 +73,7 @@ public class StateController : MonoBehaviour
         switch (curState)
         {
             case states.Wandering when !enemySpotted() && !evade:
-                state = new WanderState(agent, transform, canWander()) ;
+                state = new WanderState(agent, transform, canWander(),flocking) ;
                 curState = states.Wandering;
                 break;
             case states.Wandering when enemySpotted() && !isFleeing():
@@ -94,20 +94,20 @@ public class StateController : MonoBehaviour
                 state = new ChaseState(GetClosestEnemy(getSpottedEnemy()), agent, transform);
                 curState = states.Chasing;
                 break;
-            /*case states.Wandering when evade == true:
+            case states.Wandering when evade == true && !flocking:
                 state = new EvadeState(agent, transform);
                 curState = states.Evading;
                 break;
-            case states.Evading when evade == true:
+            case states.Evading when evade == true && !flocking:
                 state = new EvadeState(agent, transform);
                 curState = states.Evading;
                 break;
-            case states.Evading when evade == false:
-                state = new WanderState(agent, transform, canWander());
+            case states.Evading when evade == false && !flocking: 
+                state = new WanderState(agent, transform, canWander(),flocking);
                 curState = states.Wandering;
-                break;*/
+                break;
             default:
-                state = new WanderState(agent, transform, canWander());
+                state = new WanderState(agent, transform, canWander(),flocking);
                 curState = states.Wandering;
                 break;
         }

@@ -26,16 +26,19 @@ public class WanderState : IState
     private bool canWander;
 
     private TankData tankData;
+    private Vector3 destination;
 
     private float maxFieldOfViewAngle = 120;
+    private bool flocking;
 
-    public WanderState(NavMeshAgent agent, Transform transform, bool canWander)
+    public WanderState(NavMeshAgent agent, Transform transform, bool canWander,bool flocking)
     {
         controller = agent.gameObject.GetComponentInParent<StateController>();
         navMeshAgent = agent;
         currentTransform = transform;
         this.canWander = canWander;
         tankData = ScriptableObject.CreateInstance<TankData>();
+        this.flocking = flocking;
     }
 
     public void doAction()
@@ -52,9 +55,15 @@ public class WanderState : IState
 
             if (canWander)
             {
-                // Vector3 destination = RandomNavSphere(currentTransform.position, 1000f, -1);
-                Vector3 destination = Combine();
-                destination = new Vector3(destination.x * 10, destination.y, destination.z * 10);
+                if (flocking)
+                {
+                     destination= RandomNavSphere(currentTransform.position, 1000f, -1);
+                }
+                else
+                {
+                    Vector3 destination = Combine();
+                    destination = new Vector3(destination.x * 10, destination.y, destination.z * 10);
+                }
                 navMeshAgent.SetDestination(destination);
                 Debug.Log(destination);
             }
