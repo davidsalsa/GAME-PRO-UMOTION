@@ -265,6 +265,22 @@ public class StateController : MonoBehaviour
         return bestTarget;
     }
 
+    // Obtains all the allies that are currently close to the tank
+    public List<GameObject> getClosebyAllies(NavMeshAgent agent, float radius)
+    {
+        List<GameObject> agentList = new List<GameObject>();
+
+        foreach (var otherAgent in allies)
+        {
+            if (otherAgent != agent && Vector3.Distance(agent.transform.position, otherAgent.transform.position) < radius)
+            {
+                agentList.Add(otherAgent);
+            }
+        }
+
+        return agentList;
+    }
+
     List<GameObject> getSpottedEnemy()
     {
         return spottedEnemies;
