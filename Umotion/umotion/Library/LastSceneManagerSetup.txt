@@ -1,9 +1,5 @@
 sceneSetups:
-<<<<<<< HEAD
-- path: Assets/Scenes/CinemachinExample.unity
-=======
 - path: Assets/Scenes/TimelineExample.unity
->>>>>>> 2586aed6853baff3a3362738af9ecf93a7e431bd
   isLoaded: 1
   isActive: 1
   isSubScene: 0
