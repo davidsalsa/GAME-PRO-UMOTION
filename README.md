@@ -9,7 +9,7 @@ Game minor programming
 ### Workshop steps
 4. Make a wave animation with UMOTION.
 5. Make the "Wave Guy" run forward and wave with TIMELINE.
-6. Make the "Jogger Guy" jog from one side to the other with TIMELINE.
+6. Make the "Jogger Guy" run from one side to the other with TIMELINE.
 7. Make the camera move around the scene with CINEMACHINE.
 
 #### Extra challenge A
