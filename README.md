@@ -10,8 +10,11 @@ Game minor programming
 4. Make a wave animation with UMOTION.
 5. Make the "Wave Guy" run forward and wave with TIMELINE.
 6. Make the "Jogger Guy" run from one side to the other with TIMELINE.
-7. Make the camera move around the scene with CINEMACHINE.
+7. Make the camera move around the scene with TIMELINE.
 
-#### Extra challenge A
-2. Move the "optional challenge" log onto the path.
-3. Make the "Jogger Guy" jump over the log by adding a new animation.
+#### Optional challenge A
+8. Move the "optional challenge" log onto the path.
+9. Make the "Jogger Guy" jump over the log by adding a new animation.
+
+#### Optional challenge B
+10. Make the camera move around the scene with CINEMACHINE.
