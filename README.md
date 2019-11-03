@@ -16,5 +16,5 @@ Game minor programming
 8. Move the "optional challenge" log onto the path.
 9. Make the "Jogger Guy" jump over the log by adding a new animation.
 
-#### Optional challenge b
+#### Optional challenge B
 10. Make the camera move around the scene with CINEMACHINE.
